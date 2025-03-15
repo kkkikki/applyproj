@@ -11,54 +11,78 @@ export default class CompanyRecruitTable extends ModelABC {
     type: DataType.STRING,
     comment: "제목",
   })
-  title!: string;
+  company_name!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "경력",
   })
   experience!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "학력",
   })
-  education_background!: string;
+  education!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "근무형태",
   })
   employment_type!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "급여",
   })
   salary!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "직급/직책",
   })
   position!: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({
     type: DataType.STRING,
     comment: "근무지역",
   })
-  work_location!: string;
+  location!: string;
 
+  @AllowNull(true)
+  @Column({
+    type: DataType.STRING,
+    comment: "근무일시",
+  })
+  working_days!: string;
+
+  // 이미 스크랩한지 여부를 체크하는 컬럼
   @AllowNull(false)
   @Column({
     type: DataType.STRING,
-    comment: "근무요일",
+    comment: "링크",
   })
-  working_days!: string;
+  job_post_link!: string;
+
+  @AllowNull(true)
+  @Column({
+    type: DataType.BOOLEAN,
+    comment: "지원 여부",
+    defaultValue: false,
+  })
+  applied!: boolean;
+
+  @AllowNull(true)
+  @Column({
+    type: DataType.BOOLEAN,
+    comment: "스크랩 여부",
+    defaultValue: false,
+  })
+  is_scraped!: boolean;
 }

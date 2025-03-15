@@ -4,6 +4,7 @@ import _ from "lodash";
 import sequelize from "sequelize";
 import axios from "axios";
 import puppeteer, { Page } from "puppeteer";
+import CompanyRecruitTable from "../../models/main/CompanyRecruitTable";
 
 /**
  * @name 테스트 컨트롤 서비스
@@ -28,7 +29,13 @@ export default class ScraperControlService extends ScraperServiceABC {
 
     const page = await browser.newPage();
 
+    let continueScraping = true;
+
     for (let i = 2; i <= 20; i++) {
+      if (!continueScraping) {
+        break;
+      }
+
       await page.goto(
         `https://www.saramin.co.kr/zf_user/jobs/list/job-category?page=${i}&cat_mcls=2&loc_mcd=101000%2C102000&search_optional_item=n&search_done=y&panel_count=y&preview=y&isAjaxRequest=0&page_count=50&sort=RL&type=job-category&is_param=1&isSearchResultEmpty=1&isSectionHome=0&searchParamCount=2#searchTitle`
       );
@@ -65,7 +72,20 @@ export default class ScraperControlService extends ScraperServiceABC {
       }
 
       for (const link of linkList) {
+        // Check if we should continue scraping
+        const companyRecruitTable = await CompanyRecruitTable.findOne({
+          where: {
+            job_post_link: link,
+          },
+        });
+
+        continueScraping = companyRecruitTable === null;
+
         // 각 링크로 이동
+        if (!continueScraping) {
+          break;
+        }
+
         try {
           await page.goto(`https://www.saramin.co.kr${link}`);
 
@@ -129,10 +149,24 @@ export default class ScraperControlService extends ScraperServiceABC {
             }
           }
 
+          await CompanyRecruitTable.create({
+            company_name: data["제목"],
+            experience: data["경력"],
+            education: data["학력"],
+            employment_type: data["근무형태"],
+            salary: data["급여"],
+            position: data["직급/직책"],
+            location: data["근무지역"],
+            working_days: data["근무일시"] || "미기재",
+            job_post_link: data["링크"],
+            applied: data["지원 여부"],
+            is_scraped: data["스크랩 여부"],
+          });
+
           console.log(JSON.stringify(data, null, 4));
-          await sleep(2000);
+          await sleep(5000);
         } catch (err) {
-          console.log();
+          console.log(err);
         }
       }
     }
